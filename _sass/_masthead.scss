@@ -5,24 +5,14 @@
 .masthead {
   background-color: var(--gray-700);
   padding-top: var(--spacer);
-  margin-bottom: var(--spacer-3);
   min-height: 60px;
 }
 
 .masthead-title {
-  margin-top: 0;
+  margin: 0;
+  padding: 0;
   float: left;
-  font-weight: normal;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  small {
-    font-weight: 400;
-    opacity: 0.5;
-  }
+  font-weight: semi-bold;
 }
 
 // Navbar styles
@@ -34,6 +24,12 @@
 
   a {
     text-decoration: none;
+    color: var(--link-color);
+    font-size: 1.2rem;
+  }
+
+  a:hover {
+    color: var(--gray-100);
   }
 
   .nav-trigger {

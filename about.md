@@ -3,27 +3,14 @@ layout: page
 title: About
 ---
 
-<p class="message">
-  Hey there! This page is included as an example. Feel free to customize it for your own use upon downloading. Carry on!
-</p>
+I'm a software developer based in Portland, Oregon. I received a certificate in web development from Portland Community College in 2019 and have been teaching myself since.
 
-In the novel, *The Strange Case of Dr. Jekyll and Mr. Hyde*, Mr. Poole is Dr. Jekyll's virtuous and loyal butler. Similarly, Poole is an upstanding and effective butler that helps you build Jekyll themes. It's made by [@mdo](https://twitter.com/mdo).
+I have in depth experience in React and Django, and genuinely enjoy using both.
 
-There are currently two themes built on Poole:
+I've also been making music for about 20 years now and have a passion for sound design and audio engineering.
 
-- [Hyde](https://hyde.getpoole.com)
-- [Lanyon](https://lanyon.getpoole.com)
+I use Ableton as my DAW, Izotope and Fabfilter products for mixing tools, and Splice and Xfer Serum for sound design.
 
-Learn more and contribute on [GitHub](https://github.com/poole).
-
-## Setup
-
-Some fun facts about the setup of this project include:
-
-- Built for [Jekyll](https://jekyllrb.com)
-- Developed on GitHub and hosted for free on [GitHub Pages](https://pages.github.com)
-- Coded with [Atom](https://atom.io), an amazing open source code editor
-
-Have questions or suggestions? Feel free to [open an issue on GitHub](https://github.com/poole/poole/issues/new) or [ask me on Twitter](https://twitter.com/mdo).
-
-Thanks for reading!
+- [Linkedin](https://www.linkedin.com/in/william-jeffreys-3678a126a/)
+- [Github](https://github.com/wjeffreys96)
+- [SoundCloud](https://soundcloud.com/yamsiz)
