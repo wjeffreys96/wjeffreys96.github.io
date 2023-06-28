@@ -12,6 +12,7 @@
 .masthead-title {
   margin-top: 0;
   float: left;
+  font-weight: normal;
 
   a {
     color: inherit;
@@ -25,12 +26,78 @@
 }
 
 // Navbar styles
-.nav {
-  float: right;
-  line-height: 1.25rem;
-  word-spacing: 1rem;
+.masthead {
+  .wrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+
   a {
     text-decoration: none;
   }
+
+  .nav-trigger {
+    display: none;
+  }
+
+  .nav {
+    a {
+      margin-right: 5px;
+    }
+  }
 }
- 
+
+.masthead label[for="nav-trigger"] {
+  display: block;
+  position: absolute;
+  transition: all 0.2s ease-in-out;
+  right: 15px;
+  float: right;
+  width: 36px;
+  height: 36px;
+  z-index: 2;
+  cursor: pointer;
+  margin-left: 10px;
+  text-align: center;
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background-color: var(--gray-700);
+  padding: 10px 15px 10px 15px;
+  text-align: right;
+  transition: all 0.3s ease-in-out;
+  opacity: 0; 
+  visibility: hidden;
+  border-bottom-left-radius: 5px;
+}
+
+@media screen and (min-width: 600px) {
+  .mobile-menu {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .nav {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+
+  .masthead input:checked ~ .mobile-nav {
+    opacity: 1; 
+    visibility: visible; 
+    right: 0; 
+  }
+
+  .masthead input:checked ~ label[for="nav-trigger"] {
+    transform: rotate(-90deg);
+  }
+}

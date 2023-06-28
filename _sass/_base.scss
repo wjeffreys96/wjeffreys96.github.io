@@ -22,6 +22,7 @@ body {
 
 // No `:visited` state is required by default (browsers will use `a`)
 a {
+  transition: all 0.2s ease-in-out;
   color: var(--link-color);
 
   // `:focus` is linked to `:hover` for basic accessibility
@@ -86,12 +87,10 @@ footer {
 
   .footer-small {
     display: flex;
-    justify-content: flex-end;
-  }
-
-  small {
     padding-left: 15px;
-    align-self: flex-end;
+    small {
+      align-self: flex-end;
+    }
   }
 
   .self-blurb {
@@ -100,6 +99,27 @@ footer {
     width: 50%;
     margin-bottom: 0;
   }
+
+  @media screen and (max-width: 600px) {
+    .wrapper {
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .self-blurb {
+      width: 75%;
+      padding-right: 0;
+      align-self: center;
+    }
+
+    .footer-small {
+      align-self: center;
+      padding-top: 15px;
+    }
+    
+  }
+
+
 }
 
 .home {
@@ -107,4 +127,5 @@ footer {
     padding: 0;
   }
 }
+
 
