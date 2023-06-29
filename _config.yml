@@ -4,6 +4,7 @@ url: https://getpoole.com
 paginate: 1
 baseurl: ""
 permalink: pretty
+repository: wjeffreys96/wjeffreys96.github.io
 
 # Gems
 plugins:
@@ -48,3 +49,4 @@ nav:
     url: /about
 
 exclude: [vendor]
+
