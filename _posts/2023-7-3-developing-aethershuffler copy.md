@@ -18,8 +18,55 @@ I figured there were 3 main tasks to complete:
 
 ## Authentication
 
- I knew this was going to be a pretty simple program, so I didn't want to have to write a whole api for authenticating. Luckily, the Firebase authentication SDK really simplified the process. 
+ I knew this was going to be a pretty simple program, so I didn't want to have to write a whole api for authenticating. Luckily, the Firebase authentication SDK really simplified the process. The first step was to initialize the Firebase app: 
+
+    import { initializeApp } from "firebase/app";
+
+    const firebaseConfig = {
+    ...
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+
+    export default firebaseApp;
+
+Now with the app available to us, we can create the login screen. This was a bit tricky in Next.js. I had a lot of issues with infinite loops and imports not working. But I finally got it to work using a combination of an async useCallback and a useEffect: 
+
+    const auth = getAuth(firebaseApp);
+    const ctx = useContext(AuthContext);
+    const router = useRouter();
+
+    const loadFirebaseUI = useCallback(async () => {
+        const firebaseui = await import("firebaseui");
+        const ui =
+        firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
+        const uiConfig = {
+        signInOptions: [
+            firebase.auth.GithubAuthProvider.PROVIDER_ID,
+            firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        ],
+        callbacks: {
+            signInSuccessWithAuthResult: function (authResult) {
+            const db = getDatabase();
+            const user = authResult.user;
+            const userId = user.uid;
+            set(ref(db, "users/" + userId), {
+                username: user.displayName,
+            });
+            ctx.dispatch({ type: "SETUSER", payload: user });
+            router.push("/dashboard");
+            },
+        },
+        };
+
+        ui.start(".firebase-auth-container", uiConfig);
+    }, []);
+
+    useEffect(() => {
+        loadFirebaseUI();
+    }, []);
  
+ We start by defining the function that will load the Firebase auth ui. It's placed in a callback to prevent infinite loops, and also because you can't use async functions in a useEffect. We need this to be async because we need to make sure we have the firebaseui imported before we can get the instance from the sdk. There are a few ways of d
  
- 
- Similarly, I didn't want to get lost in the weeds of styling, so I decided to use Tailwind CSS and their prebuilt ui components. In doing so I've unintentionally fallen in love with Tailwind CSS, but more on that later. 
+
+Similarly, I didn't want to get lost in the weeds of styling, so I decided to use Tailwind CSS and their prebuilt ui components. In doing so I've unintentionally fallen in love with Tailwind CSS, but more on that later. 
