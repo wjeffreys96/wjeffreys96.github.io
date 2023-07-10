@@ -401,7 +401,7 @@ Now our array looks like this:
 
 Hooray! Simple card data. With this simplified array, we can move on to displaying the cards and allowing users to interact with them.
 
-To render the list of cards, I built a component called CardList.js, found in ~/componenst/CardList.js. This component ingests the cardData array returned by `getCards.js` and runs it through a function called `cardListMaker()`.
+To render the list of cards, I built a component called CardList.js, found in ~/components/CardList.js. This component ingests the cardData array returned by `getCards.js` and runs it through a function called `cardListMaker()`.
 
 ```js
 const cardListMaker = () => {
