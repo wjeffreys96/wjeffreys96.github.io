@@ -3,7 +3,6 @@ layout: post
 title: Developing AetherShuffler
 date: 2023-07-03 00:00:00 -0700
 description: Developing AetherShuffler
-categories: [AetherShuffler, React, Firebase]
 tags: [AetherShuffler, React, Firebase]
 Author: William Jeffreys
 ---
