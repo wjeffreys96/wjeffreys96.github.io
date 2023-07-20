@@ -9,7 +9,7 @@ Author: William Jeffreys
 
 Welcome to AetherShuffler's unit testing journey! As we strive to enhance the reliability and stability of our app, it's time to dive into the world of unit testing. If you're new to the concept, that's okay — so am I! In this blog post, we'll explore how to use Jest and React Testing Library to write efficient and effective unit tests that help us catch bugs and gain a better understanding of our code.
 
-I've narrowed down my tests to two files. This decision stems from the fact that when I developed AetherShuffler, I utilized Next.js' App Dir, which lacks sufficient support for testing. At the time of writing this post, even Next.js' website doesn't provide documentation for it. Fortunately, these two files don't rely on any Next.js specific code, and they offer enough code to test both pure JavaScript functions and user interactions with a React component.
+I've narrowed down my tests to two files: `CardForm.js` and `GetCards.js`. This is because when I developed AetherShuffler, I utilized Next.js' App Dir, which lacks sufficient support for testing. At the time of writing this post, even Next.js' website doesn't provide documentation for testing with the App Dir. Fortunately, these two files don't rely on any Next.js specific code, and they offer enough code to test both pure JavaScript functions and user interactions with a React component.
 
 First, let's examine `CardForm.js` and think about its fundamental functionality.
 
@@ -245,7 +245,6 @@ it("Should render a form with 4 inputs", () => {
 
 In this test, we ensure that the rendered `<CardForm />` component contains a form with exactly four inputs. First, we render the `<CardForm />` component and initialize an empty array called `inputs`. Then, we use the `form.getAllByRole()` query to retrieve elements with the roles "Select" and "submit" from the form. The resulting arrays of `selects` and `buttons` are concatenated and assigned to `inputs`. Finally, we assert that the length of `inputs` is exactly 4 using `expect().toBe()`. This test demonstrates how to use Jest's querying capabilities effectively. For more details on available querying options, please refer to the Jest documentation.
 
-
 Let's run `npm test`, and see what happens.
 
 ```
@@ -260,6 +259,109 @@ Time:        0.85 s, estimated 1 s
 Ran all test suites.
 ```
 
-Awesome, our tests ran and passed without issues! It would seem that our component renders and contains 4 inputs. What else does our component do? The users should be able to select those inputs, right? Let's test that functionality. We'll need Testing Library's user-event companion library for this. 
+Awesome, our tests ran and passed without issues! It would seem that our component renders and contains 4 inputs.
 
-user-event simulates user interactions 
+What else does our component do? The users should be able to select those inputs, right? Let's test that functionality. We'll need Testing Library's user-event companion library for this.
+
+User-event simulates user interactions by dispatching the events that would happen if the interaction took place in a browser. We first have to import it, then call `UserEvent.setup()` and assign it to a variable.
+
+```js
+describe("CardForm", () => {
+  const user = userEvent.setup();
+  ...
+});
+```
+
+Now, with a user available to us, we can write our test that simulates the user selecting options, and then verifies if those options were successfully selected.
+
+```js
+it("Should allow the user to select parameters to search with", async () => {
+  const form = render(<CardForm />);
+
+  const colorIdSelect = form.getByLabelText("Color:");
+  const cardTypeSelect = form.getByLabelText("Card Type:");
+  const cardFunctionSelect = form.getByLabelText("Card Function:");
+
+  user.selectOptions(colorIdSelect, "White");
+  user.selectOptions(cardTypeSelect, "Instant");
+  user.selectOptions(cardFunctionSelect, "Removal");
+
+  expect(await form.findByText("White")).toBeTruthy();
+  expect(await form.findByText("Instant")).toBeTruthy();
+  expect(await form.findByText("Removal")).toBeTruthy();
+});
+```
+
+We begin by rendering the form using the <CardForm /> component. Next, we retrieve the necessary Select components from the form using `getByLabelText()`. Specifically, we obtain the `colorIdSelect`, `cardTypeSelect`, and `cardFunctionSelect` components.
+
+To simulate the user's interaction, we use the `user.selectOptions()` function to programmatically select options on each of the Select components. In this example, we simulate the user choosing "White" for the color, "Instant" for the card type, and "Removal" for the card function.
+
+Following the simulated selections, we perform assertions to ensure that the selected options are displayed correctly within the form. We use `findByText()` to locate the expected text values, such as "White," "Instant," and "Removal." The expect statements, combined with `toBeTruthy()`, validate whether the form indeed contains these expected selections.
+
+```
+ PASS  src/app/components/CardForm.test.js
+  CardForm
+    ✓ Should render without crashing (31 ms)
+    ✓ Should render a form with 4 inputs (75 ms)
+    ✓ Should allow the user to select parameters to search with (100 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        1.331 s
+```
+
+Great, it looks like selecting works, too! Only one more thing to test, and that's that the form properly submits the user data.
+
+When the form is submitted, it sends the data to its parent component via props. To ensure proper submission, we can mock the function passed through props. Additionally, we can simulate the expected data that should be sent on a successful call to verify that the form correctly communicates with its parent.
+
+To simulate the resolved data, we intercept the `GetCards.js` function at the beginning of our `describe()` block and force it to output our mock data. This approach offers the advantage of isolating any potential issues to the form itself rather than the `GetCards.js` function, making troubleshooting easier.
+
+```js
+describe("CardForm", () => {
+  const user = userEvent.setup();
+  const getCardsSpy = jest.spyOn(GetCardsModule, "default");
+
+  getCardsSpy.mockResolvedValue(MockCardData);
+  ...
+
+  it("Should call the onFormSubmit function when submitted", async () => {
+    const mockFormSubmit = jest.fn();
+
+    const form = render(<CardForm onFormSubmit={mockFormSubmit} />);
+
+    const submitButton = form.getByRole("submit");
+
+    user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockFormSubmit).toHaveBeenCalledWith(MockCardData);
+    });
+  });
+});
+```
+
+In this test case we begin by creating a mock function, `mockFormSubmit`, using `jest.fn()`. This function will simulate the submission behavior.
+
+We then render the form with the onFormSubmit prop set to `mockFormSubmit`. After obtaining the submit button using `getByRole("submit")`, we simulate a user click on the button using `user.click(submitButton)`.
+
+To ensure that the `onFormSubmit()` function is called with the expected data, we use `waitFor()` and `expect()` assertions. The `waitFor()` function ensures that the assertion is performed after the form submission is processed. In this case, we expect the `mockFormSubmit` function to be called with the `MockCardData`.
+
+Alright then lets run our test and see that it passes.
+
+```
+ PASS  src/app/components/CardForm.test.js
+  CardForm
+    ✓ Should render without crashing (27 ms)
+    ✓ Should render a form with 4 inputs (73 ms)
+    ✓ Should allow the user to select parameters to search with (100 ms)
+    ✓ Should call the onFormSubmit function when submitted (70 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        0.967 s, estimated 1 s
+Ran all test suites.
+```
+Fanstastic, our test runs and passes. There are probably a million other tests we could write for this component, but for the purposes of this post, let's leave it there and move on to testing `GetCards.js`.
+
