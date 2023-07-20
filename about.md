@@ -14,3 +14,7 @@ I use Ableton as my DAW, Izotope and Fabfilter products for mixing tools, and Sp
 - [Linkedin](https://www.linkedin.com/in/william-jeffreys-3678a126a/)
 - [Github](https://github.com/wjeffreys96)
 - [SoundCloud](https://soundcloud.com/yamsiz)
+
+An app I personally developed:
+
+- [AetherShuffler](https://aether-shuffler.vercel.app/)
