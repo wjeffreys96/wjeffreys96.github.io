@@ -9,9 +9,11 @@ Author: William Jeffreys
 
 Welcome to AetherShuffler's unit testing journey! As we strive to enhance the reliability and stability of our app, it's time to dive into the world of unit testing. If you're new to the concept, that's okay — so am I! In this blog post, we'll explore how to use Jest and React Testing Library to write efficient and effective unit tests that help us catch bugs and gain a better understanding of our code.
 
-I've narrowed down my tests to two files: `CardForm.js` and `GetCards.js`. This is because when I developed AetherShuffler, I utilized Next.js' App Dir, which lacks sufficient support for testing. At the time of writing this post, even Next.js' website doesn't provide documentation for testing with the App Dir. Fortunately, these two files don't rely on any Next.js specific code, and they offer enough code to test both pure JavaScript functions and user interactions with a React component.
+For simplicity's sake, I've narrowed down my tests to two files: `CardForm.js` and `GetCards.js`. These two files offer enough code to test both pure JavaScript functions and user interactions with a React component.
 
 First, let's examine `CardForm.js` and think about its fundamental functionality.
+
+## CardForm.js
 
 ```js
 import { useReducer, useRef } from "react";
@@ -363,5 +365,210 @@ Snapshots:   0 total
 Time:        0.967 s, estimated 1 s
 Ran all test suites.
 ```
-Fanstastic, our test runs and passes. There are probably a million other tests we could write for this component, but for the purposes of this post, let's leave it there and move on to testing `GetCards.js`.
+Fanstastic, our test runs and passes. There are probably a million other tests we could write for this component, but for the purposes of this post, let's leave it there and move on to testing `GetCards.js`, a vanilla Javascript utility function that fetches and sorts card objects from the Scryfall API.
 
+## GetCards.js
+```js
+export default async function GetCards(
+  { color_id: colorId, card_type: cardType, card_function: cardFunction },
+  dispatch
+) {
+  const params = new URLSearchParams({
+    q: `${colorId && "f:commander id<=" + colorId} ${
+      colorId != "Colorless" ? "-c:c" : ""
+    } ${cardType && "t:" + cardType} order:edhrec dir:asc ${
+      cardFunction && "oracletag:" + cardFunction
+    }`,
+  });
+
+  const url = `https://api.scryfall.com/cards/search?${params}`;
+
+  async function fetcher(url) {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.data;
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", error: error });
+    }
+  }
+
+  function selectRandomCards(array, numCards) {
+    try {
+      const randomSubset = [];
+
+      for (let i = 0; i < numCards; i++) {
+        const randomIndex = Math.floor(Math.random() * array.length);
+        const selectedCard = array.splice(randomIndex, 1)[0];
+        randomSubset.push(selectedCard);
+      }
+      return randomSubset;
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", error: error });
+    }
+  }
+
+  const response = await fetcher(url);
+
+  const randomCards = selectRandomCards(response, 24);
+
+  const cardDataMaker = () => {
+    try {
+      const cardData = randomCards.map((card) => {
+        const name = card.name;
+        const id = card.id;
+        let imageUri = "";
+
+        if (card.image_uris) {
+          imageUri = card.image_uris.normal;
+        } else {
+          imageUri = card.card_faces[0].image_uris.normal;
+        }
+        return { name, id, imageUri };
+      });
+      return cardData;
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", error: error });
+    }
+  };
+
+  const cardData = cardDataMaker();
+
+  return cardData;
+}
+```
+
+Three big things I see to test are:
+1. It returns an array of 24 cards.
+2. Each card has a name, id, and image uri.
+3. If it runs into an error, it dispatches that error to the function that called it.
+
+To begin, we'll import the function itself, and a mock of some data that the API should return, then start writing our `describe()` suite.
+
+```js
+import GetCards from "./GetCards";
+import MockBulkCardData from "../__mocks__/MockBulkCardData.json";
+
+describe("GetCards", () => {});
+```
+Then we'll write the first test that asserts that `GetCards()` returns an array with 24 cards in it.
+
+```js
+  it("Should get an array with at least 24 cards", async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      json: jest.fn().mockResolvedValue({
+        data: MockBulkCardData,
+      }),
+    });
+
+    const cards = await GetCards({}, jest.fn());
+
+    expect(cards.length).toBeLessThanOrEqual(24);
+    expect(Array.isArray(cards)).toBe(true);
+  });
+```
+
+By overriding the global.fetch function and providing it with mock data, we simulate a successful API response. Subsequently, we invoke GetCards() and verify that the returned array has a length of at least 24 and is indeed an array. This initial test offers a fundamental assessment of the function.
+
+```
+ PASS  src/app/utils/GetCards.test.js
+  GetCards
+    ✓ Should get an array with at least 24 cards (5 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.546 s, estimated 1 s
+Ran all test suites related to changed files.
+```
+
+Okay, so the first test passed and our function works as intended. On to the next one.
+
+The goal of this test is to ensure that every card in the array returned by our function contains the three expected properties: a name, an id, and an image URI. Let's take a look at the test case:
+
+```js
+  it("Every card should have a name, id, and imageUri", async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      json: jest.fn().mockResolvedValue({
+        data: MockBulkCardData,
+      }),
+    });
+
+    const cards = await GetCards({}, jest.fn());
+
+    const hasExpectedProperties = cards.every((card) =>
+      ["name", "id", "imageUri"].every((prop) => {
+        const value = card[prop];
+        return typeof value === "string" && value !== "";
+      })
+    );
+
+    expect(hasExpectedProperties).toBe(true);
+  });
+```
+
+In this test case, we start by again mocking a successful API response. Then, we call `GetCards()` and store the resulting cards in the cards variable.
+
+To verify the presence of the expected properties in each card, we use the `every()` method to iterate through the array of cards. For each card, we again use the `every()` method to check if all the required properties exist and contain a non-empty string.
+
+Finally, we use the `expect()` statement to assert that `hasExpectedProperties` is true, indicating that all the cards in the array indeed have the expected properties.
+
+Now we run the test.
+
+```
+ PASS  src/app/utils/GetCards.test.js
+  GetCards
+    ✓ Should get an array with at least 24 cards (4 ms)
+    ✓ Every card should have a name, id, and imageUri (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        0.909 s, estimated 1 s
+Ran all test suites related to changed files.
+```
+
+For our last test, we just have to simulate a failed API response, and mock our dispatch function to test if it was called. 
+
+```js
+  it("Should handle errors and update the error state", async () => {
+    const mockDispatch = jest.fn();
+
+    global.fetch = jest.fn().mockRejectedValue();
+
+    const cards = await GetCards({}, mockDispatch);
+
+    expect(mockDispatch).toHaveBeenCalled();
+  });
+```
+We start by creating a mock dispatch function using `jest.fn()`. This allows us to track if the function is called correctly.
+
+To simulate an error during the API call, we mock a rejected response by overriding the `global.fetch` function with `mockRejectedValue()`.
+
+Then, we call the `GetCards()` function, passing in the mock dispatch function. This allows us to observe how the function handles errors and interacts with the dispatch mechanism.
+
+Lastly, we use the `expect()` statement to verify that the mock dispatch function was called as expected. This ensures that the error is being dispatched properly.
+
+```
+ PASS  src/app/utils/GetCards.test.js
+  GetCards
+    ✓ Should get an array with at least 24 cards (4 ms)
+    ✓ Every card should have a name, id, and imageUri (1 ms)
+    ✓ Should handle errors and update the error state (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.954 s, estimated 1 s
+Ran all test suites related to changed files.
+```
+
+And it works! We could keep going and test all kinds of things, but the general process is clear now, and we can call it quits for this post.
+
+## Conclusion
+
+In this blog post, we dived into the world of unit testing, aiming to enhance the reliability and stability of our app, AetherShuffler. We explored the usage of Jest and React Testing Library to write efficient and effective unit tests, gaining insights into our code and catching bugs along the way.
+
+As software developers, embracing unit testing is crucial. By investing time and effort in testing our code, we establish a solid foundation, detect issues early on, and deliver more reliable software. With continuous testing, we ensure the robustness of our applications and provide better user experiences.
+
+Thank you for joining me on this unit testing journey. Here's to successful tests and resilient code!
