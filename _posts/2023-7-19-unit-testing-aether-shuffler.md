@@ -6,6 +6,7 @@ description: Unit Testing AetherShuffler
 tags: [AetherShuffler, React, Firebase, Jest, React Testing Library]
 Author: William Jeffreys
 ---
+- [AetherShuffler](https://aether-shuffler.vercel.app/)
 
 Welcome to AetherShuffler's unit testing journey! As we strive to enhance the reliability and stability of our app, it's time to dive into the world of unit testing. If you're new to the concept, that's okay — so am I! In this blog post, we'll explore how to use Jest and React Testing Library to write efficient and effective unit tests that help us catch bugs and gain a better understanding of our code.
 

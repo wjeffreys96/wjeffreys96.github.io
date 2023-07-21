@@ -6,6 +6,7 @@ description: Developing AetherShuffler
 tags: [AetherShuffler, React, Firebase]
 Author: William Jeffreys
 ---
+- [AetherShuffler](https://aether-shuffler.vercel.app/)
 
 When I set out to develop AetherShuffler, I had a few goals in mind. I wanted to create a tool that would allow me to explore the vast quantities of cards available to me as a Magic: The Gathering player, and I also wanted to try out Next.js and Tailwind while I did it. For simplicity's sake, I've narrowed the scope of this app to work specifically for the Commander format. Magic has over 25,000 cards in it, so one of the hardest things to do when building a deck is finding new cards to put in them. I thought that if there was a way to "shuffle" up a list of random-ish cards and be able to save what you find, that it would turn that step of the process into something pretty fun.
 
