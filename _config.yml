@@ -19,28 +19,23 @@
 # in the templates via {{ site.myvariable }}.
 
 title: William Jeffreys, Electrical & Software Engineer | Blog
-email: wjeffdev@gmail.com
+email:
 description: >- # this means to ignore newlines until "baseurl:"
   Hi, I'm William. I'm an electrical engineer and firmware/software developer in Portland, Oregon.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://blog.will-jeffreys.com" # the base hostname & protocol for your site, e.g. http://example.com
+
 github_username: wjeffreys96
+linkedin_username: will-jeffreys
 
 # Build settings
-theme: minima
+remote-theme: jekyll/minima
 plugins:
   - jekyll-feed
+  - jekyll-remote-theme
 
 minima:
   skin: dark
-  hide_site_feed_link: true
-  social_links:
-    - title: Github
-      icon: github
-      url: "https://github.com/wjeffreys96"
-    - title: Linkedin
-      icon: linkedin
-      url: "https://www.linkedin.com/in/will-jeffreys/"
 
 sass:
   quiet_deps: true
