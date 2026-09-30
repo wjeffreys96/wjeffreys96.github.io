@@ -30,7 +30,7 @@ github_username: wjeffreys96
 linkedin_username: will-jeffreys
 
 # Build settings
-remote-theme: jekyll/minima
+remote_theme: jekyll/minima@4de3223
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
